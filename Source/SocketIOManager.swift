@@ -10,7 +10,7 @@ import UIKit
 
 class SocketIOManager: NSObject {
     static let sharedInstance = SocketIOManager()
-    var socket: SocketIOClient = SocketIOClient(socketURL: NSURL(string: "http://192.168.0.4:3000")! as URL)
+    var socket: SocketIOClient = SocketIOClient(socketURL: NSURL(string: "http://127.0.0.1:3000")! as URL)
     
     override init() {
         super.init()

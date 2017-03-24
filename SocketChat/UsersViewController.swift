@@ -11,7 +11,7 @@ import UIKit
 class UsersViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     @IBOutlet weak var tblUserList: UITableView!
-    ㅊ
+    
     var users = [[String: AnyObject]]()
     
     var nickname: String!
