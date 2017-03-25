@@ -81,7 +81,6 @@ class UsersViewController: UIViewController, UITableViewDelegate, UITableViewDat
     }
 
     
-    
     // MARK: Custom Methods
     
     func configureNavigationBar() {

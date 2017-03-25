@@ -59,6 +59,13 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
+        SocketIOManager.sharedInstance.getChatMessage { (messageInfo) -> Void in
+            DispatchQueue.main.async(execute: { () -> Void in
+                self.chatMessages.append(messageInfo)
+                self.tblChat.reloadData()
+                //                self.scrollToBottom()
+            })
+        }
     }
     
     
@@ -87,7 +94,11 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
     // MARK: IBAction Methods
     
     @IBAction func sendMessage(_ sender: AnyObject) {
-
+        if tvMessageEditor.text.characters.count > 0 {
+            SocketIOManager.sharedInstance.sendMessage(message: tvMessageEditor.text!, withNickname: nickname)
+            tvMessageEditor.text = ""
+            tvMessageEditor.resignFirstResponder()
+        }
     }
 
     
@@ -168,7 +179,6 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
 
     
-    
     func dismissKeyboard() {
         if tvMessageEditor.isFirstResponder {
             tvMessageEditor.resignFirstResponder()
@@ -191,6 +201,23 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "idCellChat", for: indexPath) as! ChatCell
+        
+        let currentChatMessage = chatMessages[indexPath.row]
+        let senderNickname = currentChatMessage["nickname"] as! String
+        let message = currentChatMessage["message"] as! String
+        let messageDate = currentChatMessage["date"] as! String
+        
+        if senderNickname == nickname {
+            cell.lblChatMessage.textAlignment = NSTextAlignment.right
+            cell.lblMessageDetails.textAlignment = NSTextAlignment.right
+            
+            cell.lblChatMessage.textColor = lblNewsBanner.backgroundColor
+        }
+        
+        cell.lblChatMessage.text = message
+        cell.lblMessageDetails.text = "by \(senderNickname.uppercased()) @ \(messageDate)"
+        
+        cell.lblChatMessage.textColor = UIColor.darkGray
         
         return cell
     }
