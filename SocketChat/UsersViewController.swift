@@ -41,6 +41,9 @@ class UsersViewController: UIViewController, UITableViewDelegate, UITableViewDat
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
+        if nickname == nil {
+            askForNickname()
+        }
     }
     
     
@@ -103,6 +106,10 @@ class UsersViewController: UIViewController, UITableViewDelegate, UITableViewDat
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "idCellUser", for: indexPath) as! UserCell
         
+        cell.textLabel?.text = users[indexPath.row]["nickname"] as? String
+        cell.detailTextLabel?.text = (users[indexPath.row]["isConnected"] as! Bool) ? "Online" : "Offline"
+        cell.detailTextLabel?.textColor = (users[indexPath.row]["isConnected"] as! Bool) ? UIColor.green : UIColor.red
+
         return cell
     }
     
@@ -111,4 +118,32 @@ class UsersViewController: UIViewController, UITableViewDelegate, UITableViewDat
         return 44.0
     }
     
+    func askForNickname() {
+        let alertController = UIAlertController(title: "SocketChat", message: "Please enter a nickname:", preferredStyle: UIAlertControllerStyle.alert)
+        
+        alertController.addTextField(configurationHandler: nil)
+        
+        let OKAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.default) { (action) -> Void in
+                let textfield = alertController.textFields![0]
+                if textfield.text?.characters.count == 0 {
+                    self.askForNickname()
+                }
+                else {
+                    self.nickname = textfield.text
+                    
+                    SocketIOManager.sharedInstance.connectToServerWithNickname(nickname: self.nickname, completionHandler: { (userList) -> Void in
+                        DispatchQueue.main.async(execute: { () -> Void in
+                            if userList != nil {
+                                self.users = userList!
+                                self.tblUserList.reloadData()
+                                self.tblUserList.isHidden = false
+                            }
+                        })
+                    })
+                }
+        }
+        
+        alertController.addAction(OKAction)
+        present(alertController, animated: true, completion: nil)
+    }
 }
