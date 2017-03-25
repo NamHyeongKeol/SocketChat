@@ -42,8 +42,23 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         swipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.down
         swipeGestureRecognizer.delegate = self
         view.addGestureRecognizer(swipeGestureRecognizer)
+        
+        NotificationCenter.default.addObserver(self, selector: Selector(("handleConnectedUserUpdateNotification:")), name: NSNotification.Name(rawValue: "userWasConnectedNotification"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: Selector(("handleDisconnectedUserUpdateNotification:")), name: NSNotification.Name(rawValue: "userWasDisconnectedNotification"), object: nil)
     }
 
+    func handleConnectedUserUpdateNotification(notification: NSNotification) {
+        let connectedUserInfo = notification.object as! [String: AnyObject]
+        let connectedUserNickname = connectedUserInfo["nickname"] as? String
+        lblNewsBanner.text = "User \(connectedUserNickname!.uppercased()) was just connected."
+        showBannerLabelAnimated()
+    }
+    
+    func handleDisconnectedUserUpdateNotification(notification: NSNotification) {
+        let disconnectedUserNickname = notification.object as! String
+        lblNewsBanner.text = "User \(disconnectedUserNickname.uppercased()) has left."
+        showBannerLabelAnimated()
+    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
