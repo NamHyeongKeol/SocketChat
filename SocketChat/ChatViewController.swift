@@ -45,6 +45,7 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         NotificationCenter.default.addObserver(self, selector: Selector(("handleConnectedUserUpdateNotification:")), name: NSNotification.Name(rawValue: "userWasConnectedNotification"), object: nil)
         NotificationCenter.default.addObserver(self, selector: Selector(("handleDisconnectedUserUpdateNotification:")), name: NSNotification.Name(rawValue: "userWasDisconnectedNotification"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: Selector(("handleUserTypingNotification:")), name: NSNotification.Name(rawValue: "userTypingNotification"), object: nil)
     }
 
     func handleConnectedUserUpdateNotification(notification: NSNotification) {
@@ -105,8 +106,6 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
                 //                self.scrollToBottom()
             })
         }
-        
-        NotificationCenter.default.addObserver(self, selector: Selector(("handleUserTypingNotification:")), name: NSNotification.Name(rawValue: "userTypingNotification"), object: nil)
     }
     
     
