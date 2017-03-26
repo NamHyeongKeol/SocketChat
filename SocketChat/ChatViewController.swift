@@ -60,6 +60,30 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         showBannerLabelAnimated()
     }
     
+    func handleUserTypingNotification(notification: NSNotification) {
+        if let typingUsersDictionary = notification.object as? [String: AnyObject] {
+            var names = ""
+            var totalTypingUsers = 0
+            for (typingUser, _) in typingUsersDictionary {
+                if typingUser != nickname {
+                    names = (names == "") ? typingUser : "\(names), \(typingUser)"
+                    totalTypingUsers += 1
+                }
+            }
+            
+            if totalTypingUsers > 0 {
+                let verb = (totalTypingUsers == 1) ? "is" : "are"
+                
+                lblOtherUserActivityStatus.text = "\(names) \(verb) now typing a message..."
+                lblOtherUserActivityStatus.isHidden = false
+            }
+            else {
+                lblOtherUserActivityStatus.isHidden = true
+            }
+        }
+        
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -81,6 +105,8 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
                 //                self.scrollToBottom()
             })
         }
+        
+        NotificationCenter.default.addObserver(self, selector: Selector(("handleUserTypingNotification:")), name: NSNotification.Name(rawValue: "userTypingNotification"), object: nil)
     }
     
     
@@ -197,6 +223,8 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
     func dismissKeyboard() {
         if tvMessageEditor.isFirstResponder {
             tvMessageEditor.resignFirstResponder()
+            
+            SocketIOManager.sharedInstance.sendStopTypingMessage(nickname: nickname)
         }
     }
     
@@ -241,6 +269,8 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
     // MARK: UITextViewDelegate Methods
     
     func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
+        SocketIOManager.sharedInstance.sendStartTypingMessage(nickname: nickname)
+
         return true
     }
 

@@ -61,5 +61,17 @@ class SocketIOManager: NSObject {
         socket.on("userExitUpdate") { (dataArray, socketAck) -> Void in
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: "userWasDisconnectedNotification"), object: dataArray[0] as! String)
         }
+        
+        socket.on("userTypingUpdate") { (dataArray, socketAck) -> Void in
+            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "userTypingNotification"), object: dataArray[0] as? [String: AnyObject])
+        }
+    }
+    
+    func sendStartTypingMessage(nickname: String) {
+        socket.emit("startType", nickname)
+    }
+    
+    func sendStopTypingMessage(nickname: String) {
+        socket.emit("stopType", nickname)
     }
 }
